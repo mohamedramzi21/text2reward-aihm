@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+
+# Secrets et configuration locale
+.env
+.env.*
+!.env.example
+
+# Article de référence présent localement, non inclus au dépôt
+/articledetexttoreward.pdf
+
+# Entraînements et artefacts générés
+checkpoints/
+models/
+logs/
+results/raw/
+*.zip
+*.pt
+*.pth
+
+# Éditeurs et systèmes
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
