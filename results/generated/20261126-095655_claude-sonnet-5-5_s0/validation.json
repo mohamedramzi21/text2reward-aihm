@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "errors": [],
+  "values": {
+    "move_closer": 0.45,
+    "move_away": -0.55,
+    "hit_wall": -1.05,
+    "hit_border": -1.05,
+    "reach_goal": 10.45,
+    "last_step": 0.45
+  },
+  "ms_per_call": 0.0399
+}
