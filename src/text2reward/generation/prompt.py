@@ -1,0 +1,73 @@
+"""Construction du prompt zero-shot, sur le modèle de l'annexe C de Text2Reward (Xie et al., 2024).
+
+Structure reprise du papier : rôle d'expert, espace d'actions, abstraction Python de
+l'environnement, composantes typiques d'une récompense, connaissances additionnelles,
+consigne, puis demande de raisonnement et de code.
+"""
+
+DEFAULT_INSTRUCTION = (
+    "Navigate the agent to the goal cell as quickly as possible "
+    "without bumping into walls."
+)
+
+FUNCTION_SIGNATURE = (
+    "def compute_reward(state: dict, action: int, next_state: dict, info: dict) -> float"
+)
+
+PROMPT_TEMPLATE = """You are an expert in reinforcement learning and code generation. We are going to train an agent that moves in a 2D grid world. The action space of the agent is `Discrete(4)`. Now I want you to help me write a reward function for reinforcement learning. I'll give you the attributes of the environment. You can use these attributes to write the reward function.
+
+Typically, the reward function of a navigation task is made of these following parts:
+1. the progress of the agent towards the goal
+2. a bonus when the goal is reached
+3. a penalty for undesired events, implied by the task instruction
+4. a small cost per step, to encourage short paths
+
+```python
+class GridWorldEnv(gym.Env):
+    # 7 x 7 grid. A cell is (row, col): row 0 is the top row, col 0 is the left column.
+    # Action space: Discrete(4)
+    #   0 = up (row - 1), 1 = right (col + 1), 2 = down (row + 1), 3 = left (col - 1)
+    # If a move would enter a wall cell or leave the grid, the agent stays in place: this is a collision.
+    # An episode ends when the agent reaches the goal, or is truncated after max_steps steps.
+
+# The reward function is called once per step with:
+state: dict       # environment state BEFORE the action
+next_state: dict  # environment state AFTER the action
+    # both dicts have the same keys:
+    state["agent_pos"]: tuple[int, int]         # (row, col) of the agent
+    state["goal_pos"]: tuple[int, int]          # (row, col) of the goal
+    state["walls"]: frozenset[tuple[int, int]]  # cells occupied by walls
+    state["grid_size"]: int                     # 7
+    state["step"]: int                          # number of steps already taken in the episode
+    state["max_steps"]: int                     # 40
+action: int       # action taken, in {0, 1, 2, 3}
+info: dict        # events of this transition
+    info["collision"]: bool     # True if the move hit a wall or the border (the agent did not move)
+    info["reached_goal"]: bool  # True if the agent is on the goal after the move
+```
+
+Additional knowledge:
+1. Only the `math` and `numpy` (as `np`) modules are available. Do not import anything else.
+2. The function must be pure: no global variables, no randomness, no file or network access.
+3. The function must always return a finite float.
+
+I want you to fulfill the following task: {instruction}
+1. please think step by step and tell me what does this task mean;
+2. then write a function that formats as `{signature}` and returns the `reward: float` only.
+3. When writing code, you can also add some comments as your thoughts.
+4. Put the complete function, with its imports, in a single ```python code block."""
+
+
+def build_zero_shot_prompt(instruction: str = DEFAULT_INSTRUCTION) -> str:
+    """Retourne le prompt zero-shot complet pour une consigne donnée."""
+    if not instruction or not instruction.strip():
+        raise ValueError("La consigne ne peut pas être vide.")
+    return (
+        PROMPT_TEMPLATE
+        .replace("{instruction}", instruction.strip())
+        .replace("{signature}", FUNCTION_SIGNATURE)
+    )
+
+
+if __name__ == "__main__":
+    print(build_zero_shot_prompt())
