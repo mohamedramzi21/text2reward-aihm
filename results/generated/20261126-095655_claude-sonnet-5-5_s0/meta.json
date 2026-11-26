@@ -1,0 +1,13 @@
+{
+  "run_id": "20261126-095655_claude-sonnet-5-5_s0",
+  "created_at": "2026-11-26T09:57:07",
+  "instruction": "Navigate the agent to the goal cell as quickly as possible without bumping into walls.",
+  "model": "claude-sonnet-5-5",
+  "max_tokens": 4000,
+  "temperature": null,
+  "anthropic_sdk": "2.14.0",
+  "stop_reason": "end_turn",
+  "input_tokens": 948,
+  "output_tokens": 1633,
+  "extraction": "ok"
+}
